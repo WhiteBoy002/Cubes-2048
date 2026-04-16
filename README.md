@@ -1,6 +1,6 @@
 # Technická dokumentace projektu: Cubes 2048 
 
-Tento dokument poskytuje komplexní přehled o architektuře, mechanikách a implementaci webové hry **Cubes 2048**. Projekt je hostován jako živá webová aplikace na adrese: [[https://whiteboy002.github.io/CubeGame/](https://whiteboy002.github.io/CubeGame/](https://whiteboy002.github.io/Cubes-2048/)).
+Tento dokument poskytuje komplexní přehled o architektuře, mechanikách a implementaci webové hry **Cubes 2048**. Projekt je hostován jako živá webová aplikace na adrese:  [https://whiteboy002.github.io/Cubes-2048/).
 
 ---
 
