@@ -1,76 +1,47 @@
-# Technická dokumentace: Cubes 2048
+# Jak funguje naše hra Cubes 2048 (Technický pohled)
 
-Tento dokument slouží jako technický manuál k architektuře, mechanikám a implementaci webové hry **Cubes 2048**. Projekt využívá objektově orientovaný přístup v JavaScriptu a hardwarově akcelerované vykreslování skrze HTML5 Canvas.
-
----
-
-## 1. Architektura systému
-
-Hra je postavena jako vysoce výkonná klientská aplikace (SPA), která běží kompletně v prohlížeči uživatele.
-
-### Souborová struktura a Data-Flow
-* **index.html**: Hostitelský kontejner pro `<canvas>` a vrstvy uživatelského rozhraní (UI).
-* **style.css**: Vizuální definice využívající moderní prvky jako *Glassmorphism* (rozostření pozadí) pro boční panely.
-* **script.js**: Obsahuje herní engine, třídy entit a hlavní smyčku (`Game Loop`), která běží na frekvenci ~60 FPS.
+Tenhle dokument vysvětluje, co se děje v pozadí naší hry Cubes 2048. Celý projekt jsme postavili na čistém JavaScriptu, HTML a CSS, takže k běhu není potřeba nic instalovat – stačí prohlížeč.
 
 ---
 
-## 2. Herní mechaniky a logika
-
-### Růst a proces slučování (Merge System)
-Každá entita se skládá z dynamického pole instancí třídy `Cube`. Logika v metodě `mergeBody()` zajišťuje:
-1.  **Validaci kolize**: Detekce dotyku hlavy entity s jiným segmentem.
-2.  **Inkrementaci**: Při shodě hodnot dochází k upgradu na $2^{n+1}$ a odstranění duplicitního článku.
-3.  **Hierarchické řazení**: Metoda `.sort()` udržuje nejsilnější článek v čele, což definuje vizuální a herní dominanci.
-
-### Dynamická kamera a logaritmický zoom
-Hra řeší problém "velkých měřítek" pomocí adaptivního výpočtu zorného pole. Hodnota přiblížení se mění logaritmicky, aby růst nebyl lineární a hráč neztratil přehled o okolí:
-
-$$camera.zoom = \frac{1}{1 + (\log_2(player.value) - 1) \times 0.15}$$
+## 1. Jak jsme to poskládali
+Hru jsme nenavrhli přes klasické obrázky, ale všechno necháváme vykreslovat přímo na "plátno" (HTML5 Canvas). 
+* **script.js**: Tady jsme vytvořili veškerý mozek hry. Řešíme tu pohyb, detekci kolizí i to, jak se chovají boti.
+* **Game Loop**: Nastavili jsme herní smyčku, která se v podstatě 60krát za sekundu celá smaže a znovu vykreslí. Díky tomu je pohyb plynulý a všechno působí živě.
 
 ---
 
-## 3. Implementace Umělé Inteligence (NPC)
-
-Systém simuluje autonomní agenty (boty), kteří se rozhodují v každém snímku pomocí metody `think()`:
-
-* **Vektorový útěk**: Pokud je detekována entita s vyšší hodnotou v kritické vzdálenosti, bot vypočítá opačný vektor pohybu ($\vec{V}_{escape} = \vec{P}_{bot} - \vec{P}_{target}$).
-* **Akvizice cílů**: Algoritmus prioritizuje Power-Upy (2x) a menší cíle pro maximalizaci růstu.
-* **Bounding Box**: Inteligentní odraz od hranic herního světa (WORLD_SIZE) zabraňuje uvíznutí botů na okrajích.
+## 2. Mechanika "Hada" a spojování kostek
+Nechtěli jsme, aby to byl jen tupý čtverec, co se zvětšuje. Každého hráče jsme pojali jako řetězec kostek.
+* **Pohyb**: První kostka (hlava) následuje myš a ostatní články se táhnou za ní jako provázek.
+* **Slučování (Merge)**: Když hráč narazí hlavou do kostky se stejným číslem, naprogramovali jsme jejich spojení do jedné, přičemž se hodnota zdvojnásobí (2, 4, 8, 16...). 
+* **Třídění**: Aby to vypadalo dobře, hra po každém sebrání kostky pole automaticky "přerovná". Nejsilnější kostka zůstává vždycky vepředu, aby bylo hned jasné, kdo na ploše dominuje.
 
 ---
 
-## 4. Uživatelské rozhraní a ovládání
-
-### Interakce a fyzika pohybu
-* **Směrové vedení**: Vypočítává se pomocí `Math.atan2` z rozdílu souřadnic kurzoru a středu obrazovky.
-* **Boost systém**: Implementuje dočasné zvýšení rychlosti (multiplikátor 1.8x) s vázaným časovačem a automatickou regenerací energie v čase.
-
-### Persistence a UI
-* **Leaderboard**: Real-time žebříček TOP 10 entit, řazený podle celkového součtu hodnot všech článků.
-* **Local Storage**: Trvalé ukládání High Score, které zůstává zachováno i po obnovení stránky.
+## 3. Inteligentní kamera
+Když má hráč hodně bodů, kostky jsou obrovské. Aby se vůbec vešly na displej, vymysleli jsme funkci pro **automatický zoom**. Čím větší má hráč skóre, tím víc se kamera oddálí. Vyladili jsme to tak, aby to nebylo skokové, ale krásně plynulé.
 
 ---
 
-## 5. Grafické zpracování
+## 4. Jak přemýšlejí naši boti (AI)
+Do mapy jsme přidali 15 botů. Nechtěli jsme, aby se hýbali náhodně, takže se v každém okamžiku rozhodují podle svého okolí:
+* **Strach**: Pokud boti uvidí někoho většího, okamžitě otočí směr a zkusí utéct.
+* **Lov**: Pokud je čistý vzduch, prioritně vyhledávají nejbližší menší kostky nebo bonusy (třeba "2x"), aby vyrostli.
+* **Hranice**: Naprogramovali jsme jim hlídání okrajů mapy, aby se nezasekli v rohu a včas se odrazili zpět do hry.
 
-Vizuální styl definuje čistý Dark Mode s barevným schématem odpovídajícím standardu 2048.
+---
 
-| Hodnota | HEX kód | Efekt |
-| :--- | :--- | :--- |
-| 2 - 4 | #eee4da / #ede0c8 | Základní barvy |
-| 8 - 64 | #f2b179 / #f65e3b | Oranžové/Červené tóny |
-| 1024 - 2048 | #edc22e / #3c3a32 | Zlatý / Tmavý efekt se září |
-
-Pro plynulost hran je využita metoda `ctx.roundRect`, která zajišťuje moderní "soft" vzhled všech herních objektů.
+## 5. Ovládání a vychytávky
+* **Boost (Sprint)**: Přidali jsme možnost zrychlení. Aby to nebylo nefér, omezili jsme ho na 5 sekund a pak se musí energie pomalu dobít.
+* **Leaderboard**: Tabulka vpravo nahoře se aktualizuje dynamicky, takže hráči hned vidí, jestli se dostali do TOP 10.
+* **Vizuál**: Každé číslo má svou barvu podle standardu 2048. Použili jsme zaoblené rohy, aby kostky vypadaly moderně a příjemně.
 
 ---
 
 ## 6. Budoucí optimalizace
-
-Pro další rozvoj projektu jsou navržena následující technická vylepšení:
-
-1.  **Quadtree Spatial Partitioning**: Nahrazení lineární detekce kolizí ($O(n^2)$) prostorovou strukturou pro zvýšení FPS při vysokém počtu entit.
-2.  **Mobile Touch Engine**: Implementace virtuálního joysticku a gest pro plnou podporu mobilních zařízení.
-3.  **Particle System**: Přidání vizuálních efektů (částic) při destrukci nepřátel nebo úspěšném merge procesu.
-4.  **Multiplayer (WebSockets)**: Přechod z lokální simulace na synchronizovaný herní server pro souboj reálných hráčů.
+I když nám hra běží dobře, máme pár nápadů, jak ji v budoucnu vylepšit:
+1.  **Lepší detekce kolizí**: Až bude na mapě stovky objektů, plánujeme použít systém "sektorů" (Quadtree), aby se procesor tolik nepotil.
+2.  **Mobilní verze**: Chceme přidat virtuální joystick na displej pro pohodlné hraní na telefonech.
+3.  **Efekty**: Rádi bysme přidali částicové efekty nebo záblesky při "snědení" nepřítele nebo při úspěšném spojení kostek.
+4.  **Multiplayer**: Naším výhledovým cílem je vyměnit boty za skutečné lidi a propojit je přes internet.
