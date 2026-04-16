@@ -43,4 +43,34 @@ Systém simuluje autonomní agenty (boty), kteří se rozhodují v každém sní
 ## 4. Uživatelské rozhraní a ovládání
 
 ### Interakce a fyzika pohybu
-* **Směrové vedení**: Vypočítává se pomocí `Math.atan2` z rozdílu souřadnic kurzoru a středu obraz
+* **Směrové vedení**: Vypočítává se pomocí `Math.atan2` z rozdílu souřadnic kurzoru a středu obrazovky.
+* **Boost systém**: Implementuje dočasné zvýšení rychlosti (multiplikátor 1.8x) s vázaným časovačem a automatickou regenerací energie v čase.
+
+### Persistence a UI
+* **Leaderboard**: Real-time žebříček TOP 10 entit, řazený podle celkového součtu hodnot všech článků.
+* **Local Storage**: Trvalé ukládání High Score, které zůstává zachováno i po obnovení stránky.
+
+---
+
+## 5. Grafické zpracování
+
+Vizuální styl definuje čistý Dark Mode s barevným schématem odpovídajícím standardu 2048.
+
+| Hodnota | HEX kód | Efekt |
+| :--- | :--- | :--- |
+| 2 - 4 | #eee4da / #ede0c8 | Základní barvy |
+| 8 - 64 | #f2b179 / #f65e3b | Oranžové/Červené tóny |
+| 1024 - 2048 | #edc22e / #3c3a32 | Zlatý / Tmavý efekt se září |
+
+Pro plynulost hran je využita metoda `ctx.roundRect`, která zajišťuje moderní "soft" vzhled všech herních objektů.
+
+---
+
+## 6. Budoucí optimalizace
+
+Pro další rozvoj projektu jsou navržena následující technická vylepšení:
+
+1.  **Quadtree Spatial Partitioning**: Nahrazení lineární detekce kolizí ($O(n^2)$) prostorovou strukturou pro zvýšení FPS při vysokém počtu entit.
+2.  **Mobile Touch Engine**: Implementace virtuálního joysticku a gest pro plnou podporu mobilních zařízení.
+3.  **Particle System**: Přidání vizuálních efektů (částic) při destrukci nepřátel nebo úspěšném merge procesu.
+4.  **Multiplayer (WebSockets)**: Přechod z lokální simulace na synchronizovaný herní server pro souboj reálných hráčů.
