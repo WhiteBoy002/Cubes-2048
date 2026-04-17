@@ -1,6 +1,6 @@
 # Jak funguje naše hra Cubes 2048 (Technický pohled)
 
-Projekt je hostován jako živá webová aplikace na adrese: https://whiteboy002.github.io/CubeGame/.
+Projekt je hostován jako živá webová aplikace na adrese: https://whiteboy002.github.io/Cubes-2048/.
 
 Tenhle dokument vysvětluje, co se děje v pozadí naší hry Cubes 2048. Celý projekt jsme postavili na čistém JavaScriptu, HTML a CSS, takže k běhu není potřeba nic instalovat – stačí prohlížeč.
 
